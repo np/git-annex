@@ -19,6 +19,7 @@ import Annex.Content
 import Utility.FileMode
 import Utility.TempFile
 import Logs.Location
+import Config
 import qualified Annex
 import qualified Git
 import qualified Git.Command

@@ -33,11 +33,10 @@ import Common.Annex
 import Logs.Location
 import Annex.UUID
 import qualified Git
-import qualified Git.Config
 import qualified Annex
 import qualified Annex.Queue
 import qualified Annex.Branch
-import Utility.StatFS
+import Utility.DiskFree
 import Utility.FileMode
 import qualified Utility.Url as Url
 import Types.Key
@@ -176,34 +175,19 @@ checkDiskSpace = checkDiskSpace' 0
 
 checkDiskSpace' :: Integer -> Key -> Annex ()
 checkDiskSpace' adjustment key = do
-	g <- gitRepo
-	r <- getConfig g "diskreserve" ""
-	let reserve = fromMaybe megabyte $ readSize dataUnits r
-	stats <- liftIO $ getFileSystemStats (gitAnnexDir g)
-	sanitycheck r stats
-	case (stats, keySize key) of
-		(Nothing, _) -> return ()
-		(_, Nothing) -> return ()
-		(Just (FileSystemStats { fsStatBytesAvailable = have }), Just need) ->
+	reserve <- getDiskReserve
+	free <- inRepo $ getDiskFree . gitAnnexDir
+	case (free, keySize key) of
+		(Just have, Just need) ->
 			when (need + reserve > have + adjustment) $
 				needmorespace (need + reserve - have - adjustment)
+		_ -> return ()
 	where
-		megabyte :: Integer
-		megabyte = 1000000
 		needmorespace n = unlessM (Annex.getState Annex.force) $
 			error $ "not enough free space, need " ++ 
 				roughSize storageUnits True n ++
 				" more" ++ forcemsg
 		forcemsg = " (use --force to override this check or adjust annex.diskreserve)"
-		sanitycheck r stats
-			| not (null r) && isNothing stats = do
-				unlessM (Annex.getState Annex.force) $
-					error $ "You have configured a diskreserve of "
-						++ r ++
-						" but disk space checking is not working"
-						++ forcemsg
-				return ()
-			| otherwise = return ()
 
 {- Moves a file into .git/annex/objects/
  -
@@ -319,13 +303,12 @@ saveState oneshot = do
 			( Annex.Branch.commit "update" , Annex.Branch.stage)
 	where
 		alwayscommit = fromMaybe True . Git.configTrue
-			<$> fromRepo (Git.Config.get "annex.alwayscommit" "")
+			<$> getConfig "annex.alwayscommit" ""
 
 {- Downloads content from any of a list of urls. -}
 downloadUrl :: [Url.URLString] -> FilePath -> Annex Bool
 downloadUrl urls file = do
-	g <- gitRepo
-	o <- map Param . words <$> getConfig g "web-options" ""
+	o <- map Param . words <$> getConfig "annex.web-options" ""
 	liftIO $ anyM (\u -> Url.download u o file) urls
 
 {- Copies a key's content, when present, to a temp file.

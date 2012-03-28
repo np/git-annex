@@ -1,5 +1,5 @@
 Name: git-annex
-Version: 3.20120315
+Version: 3.20120316
 Cabal-Version: >= 1.6
 License: GPL
 Maintainer: Joey Hess <joey@kitenet.net>
@@ -30,14 +30,21 @@ Executable git-annex
   Main-Is: git-annex.hs
   Build-Depends: MissingH, hslogger, directory, filepath,
    unix, containers, utf8-string, network, mtl, bytestring, old-locale, time,
-   pcre-light, extensible-exceptions, dataenc, SHA, process, hS3, json, HTTP,
+   pcre-light, extensible-exceptions, dataenc, SHA, process, json, HTTP,
    base >= 4.5, base < 5, monad-control, transformers-base, lifted-base,
    IfElse, text, QuickCheck >= 2.1
-  Other-Modules: Utility.StatFS, Utility.Touch
+  Other-Modules: Utility.Touch
+  C-Sources: Utility/diskfree.c
 
 Executable git-annex-shell
   Main-Is: git-annex-shell.hs
-  Other-Modules: Utility.StatFS
+  C-Sources: Utility/diskfree.c
+
+Test-Suite test
+  Type: exitcode-stdio-1.0
+  Main-Is: test.hs
+  Build-Depends: testpack, HUnit
+  C-Sources: Utility/diskfree.c
 
 source-repository head
   type: git
