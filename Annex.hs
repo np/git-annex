@@ -26,6 +26,7 @@ module Annex (
 	gitRepo,
 	inRepo,
 	fromRepo,
+	devnullUUID,
 ) where
 
 import Control.Monad.State.Strict
@@ -46,6 +47,7 @@ import Types.Crypto
 import Types.BranchState
 import Types.TrustLevel
 import Types.Messages
+import Types.UUID
 import Utility.State
 import qualified Utility.Matcher
 import qualified Data.Map as M
@@ -116,7 +118,7 @@ newState gitrepo = AnnexState
 	, forcenumcopies = Nothing
 	, limit = Left []
 	, shared = Nothing
-	, forcetrust = M.empty
+	, forcetrust = M.fromList [(devnullUUID, UnTrusted)]
 	, trustmap = Nothing
 	, ciphers = M.empty
 	, lockpool = M.empty
@@ -124,6 +126,10 @@ newState gitrepo = AnnexState
 	, fields = M.empty
 	, cleanup = M.empty
 	}
+
+-- Dummy uuid for /dev/null. Do not alter.
+devnullUUID :: UUID
+devnullUUID = UUID "00000000-0000-0000-0000-000000000002"
 
 {- Makes an Annex state object for the specified git repo.
  - Ensures the config is read, if it was not already. -}

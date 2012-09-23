@@ -30,6 +30,7 @@ import qualified Remote.Directory
 import qualified Remote.Rsync
 import qualified Remote.Web
 import qualified Remote.Hook
+import qualified Remote.DevNull
 
 remoteTypes :: [RemoteType]
 remoteTypes =
@@ -42,6 +43,7 @@ remoteTypes =
 	, Remote.Rsync.remote
 	, Remote.Web.remote
 	, Remote.Hook.remote
+	, Remote.DevNull.remote
 	]
 
 {- Builds a list of all available Remotes.
