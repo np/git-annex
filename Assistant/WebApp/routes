@@ -24,7 +24,6 @@
 /config/repository/add/ssh/make/git/#SshData MakeSshGitR GET
 /config/repository/add/ssh/make/rsync/#SshData MakeSshRsyncR GET
 /config/repository/add/cloud/rsync.net AddRsyncNetR GET
-/config/repository/add/cloud/S3 AddS3R GET
 
 /config/repository/pair/local/start StartLocalPairR GET
 /config/repository/pair/local/running/#SecretReminder RunningLocalPairR GET
@@ -36,7 +35,6 @@
 
 /config/repository/enable/rsync/#UUID EnableRsyncR GET
 /config/repository/enable/directory/#UUID EnableDirectoryR GET
-/config/repository/enable/S3/#UUID EnableS3R GET
 
 /transfers/#NotificationId TransfersR GET
 /notifier/transfers NotifierTransfersR GET
